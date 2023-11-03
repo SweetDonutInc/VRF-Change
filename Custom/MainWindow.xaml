@@ -5,8 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Custom"
         mc:Ignorable="d"
-        Title="Кастомка" Height="450" Width="800">
+        Title="VRXF" Height="450" Width="800">
     <Grid>
-        
+        <Button Width="190" Height="60" Background="Bisque" Margin="20,35,580,323" Content="Загрузить Pdf" Click="LoadPdf_Click"/>
+        <ScrollViewer Width="500" Height="250" Margin="0,50,0,0">
+            <TextBox x:Name="test"/>
+        </ScrollViewer>
     </Grid>
 </Window>
