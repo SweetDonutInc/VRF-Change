@@ -5,11 +5,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Custom"
         mc:Ignorable="d"
-        Title="VRXF" Height="450" Width="800">
-    <Grid>
-        <Button Width="190" Height="60" Background="Bisque" Margin="20,35,580,323" Content="Загрузить Pdf" Click="LoadPdf_Click"/>
-        <ScrollViewer Width="500" Height="250" Margin="0,50,0,0">
-            <TextBox x:Name="test"/>
+        Title="VRXF" Height="720" Width="1280" ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Button">
+                <Setter Property="Background" Value="#08D9D6"/>
+                <Setter Property="FontFamily" Value="Comic Sans MS"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="Foreground" Value="#222831"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#08D9D6"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="False">
+                        <Setter Property="Background" Value="#00ADB5"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid Background="#222831">
+
+        <Button Width="190" Height="60" Margin="0,0,900,500" Content="Hisense" Click="Hisense_Click"/>
+
+        <Button x:Name="LoadPdfBtn" Width="190" Height="60" Margin="0,0,900,300" Content="Загрузить Pdf" Click="LoadPdf_Click" Visibility="Collapsed"/>
+        <TextBlock x:Name="LoadPdfBtnText" Text="Файл считан" Foreground="#EEEEEE" Margin="320,172,0,0" FontFamily="Comic Sans MS" FontSize="25" Visibility="Collapsed"/>
+
+        <ScrollViewer VerticalScrollBarVisibility="Visible" Margin="800,0,0,0">
+            <TextBlock x:Name="Logs"
+                       TextWrapping="Wrap"
+                       Background="#EEEEEE"
+                       Width="480"
+                       FontSize="15"
+                       FontFamily="Comic Sans MS"
+                       Margin="-30,0,0,0"
+                       Padding="50,10,0,0"/>
         </ScrollViewer>
+
+        <Button x:Name="AllClear" Width="190" Height="60" Margin="0,0,900,-500" Content="Очистить" Click="AllClear_Click" Visibility="Visible"/>
+        
     </Grid>
 </Window>
