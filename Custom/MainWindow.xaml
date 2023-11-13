@@ -8,7 +8,7 @@
         Title="VRXF" Height="720" Width="1280" ResizeMode="NoResize">
     <Window.Resources>
         <ResourceDictionary>
-            <Style TargetType="Button">
+            <Style TargetType="Button" x:Name="ButtonTamplate">
                 <Setter Property="Background" Value="#08D9D6"/>
                 <Setter Property="FontFamily" Value="Comic Sans MS"/>
                 <Setter Property="FontSize" Value="18"/>
@@ -31,14 +31,93 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+
+            <Style TargetType="ComboBoxItem">
+                <Setter Property="Background" Value="#E3E3E3"/>
+                <Setter Property="FontFamily" Value="Comic Sans MS"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Foreground" Value="#222831"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Height" Value="38"/>
+                <Setter Property="BorderBrush" Value="#E3E3E3"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Background="#222831">
 
-        <Button Width="190" Height="60" Margin="0,0,900,500" Content="Hisense" Click="Hisense_Click"/>
+        <Button x:Name="Hisense" Width="190" Height="60" Margin="0,0,1000,500" Content="Hisense" Click="Hisense_Click"/>
+        <Button x:Name="Dantex" Width="190" Height="60" Margin="0,0,590,500" Content="Dantex" Click="Dantex_Click"/>
+        <Button x:Name="Clivet" Width="190" Height="60" Margin="0,0,180,500" Content="Clivet" Click="Clivet_Click"/>
 
-        <Button x:Name="LoadPdfBtn" Width="190" Height="60" Margin="0,0,900,300" Content="Загрузить Pdf" Click="LoadPdf_Click" Visibility="Collapsed"/>
-        <TextBlock x:Name="LoadPdfBtnText" Text="Файл считан" Foreground="#EEEEEE" Margin="320,172,0,0" FontFamily="Comic Sans MS" FontSize="25" Visibility="Collapsed"/>
+        <!--==================================================-->
+        <!--TextBlock Тип/Модель/Кол-во-->
+        <!--==================================================-->
+        <TextBlock  Width="190" Height="38"
+                    Margin="0,0,1000,350"
+                    Text="Тип"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"/>
+
+        <TextBlock  Width="280" Height="38"
+                    Margin="0,0,500,350"
+                    Text="Модель"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"/>
+        <TextBlock  Width="64" Height="38"
+                    Margin="0,0,125,350"
+                    Text="Кол-во"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"/>
+        <!--==================================================-->
+        <!--==================================================-->
+        <!--==================================================-->
+
+        <!--==================================================-->
+        <!--ComboBox Тип/Модель и TextBox количество-->
+        <!--==================================================-->
+        <ComboBox x:Name="CB_BlockTypes" 
+                  Width="190"
+                  Height="38"
+                  Margin="0,0,1000,290"
+                  Background="#EEEEEE"
+                  FontSize="18"
+                  FontFamily="Comic Sans MS"
+                  Foreground="#222831"
+                  VerticalContentAlignment="Center">
+            <ComboBoxItem Content="Внешний блок" Selected="OutletBlock_Selected"></ComboBoxItem>
+            <ComboBoxItem Content="Внутренний блок" Selected="InletBlock_Selected"></ComboBoxItem>
+            <ComboBoxItem Content="Разветвители"></ComboBoxItem>
+            <ComboBoxItem Content="Медная труба"></ComboBoxItem>
+            <ComboBoxItem Content="Хладагент"></ComboBoxItem>
+        </ComboBox>
+
+        <ComboBox x:Name="CB_ModelType"
+                  Width="280" Height="38"
+                  Margin="0,0,500,290"
+                  Background="#EEEEEE"
+                  FontSize="18"
+                  FontFamily="Comic Sans MS"
+                  VerticalContentAlignment="Center"
+                  IsTextSearchEnabled="False"
+                  IsEditable="True"
+                  TextBoxBase.TextChanged="ComboBox_TextChanged"/>
+        
+        <TextBox x:Name="TB_CountText"
+                 Height="38" Width="64"
+                 Margin="0,0,125,290"
+                 Background="#EEEEEE"
+                 HorizontalContentAlignment="Center"
+                 VerticalContentAlignment="Center"
+                 FontSize="18"
+                 FontFamily="Comic Sans MS"
+                 TextWrapping="NoWrap"/>
+
+        <!--==================================================-->
+        <!--==================================================-->
+        <!--==================================================-->
 
         <ScrollViewer VerticalScrollBarVisibility="Visible" Margin="800,0,0,0">
             <TextBlock x:Name="Logs"
@@ -51,7 +130,11 @@
                        Padding="50,10,0,0"/>
         </ScrollViewer>
 
-        <Button x:Name="AllClear" Width="190" Height="60" Margin="0,0,900,-500" Content="Очистить" Click="AllClear_Click" Visibility="Visible"/>
-        
+        <Button x:Name="AllClear" Width="190" Height="60" Margin="0,0,1000,-500" Content="Очистить" Click="AllClear_Click" Visibility="Visible"/>
+
+        <Button x:Name="AddBtn" Width="70" Height="38" Margin="40,0,0,290" Content="Add" Click="Add_Click"/>
+
+        <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,0,1000,-350" Content="Выгрузить Excel" Click="Add_Click"/>
+
     </Grid>
 </Window>
