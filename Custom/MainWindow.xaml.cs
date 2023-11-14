@@ -18,12 +18,14 @@ using iTextSharp.text.pdf.parser;
 using System.IO;
 using System.Data;
 using System.Globalization;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using NPOI.SS.Util;
+using NPOI.HSSF.Util;
+using NPOI.HSSF.UserModel;
 
 namespace Custom
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         List<OutletBlocks> outletBlocks_List = new List<OutletBlocks>(); //Лист с внешними блоками
@@ -38,7 +40,6 @@ namespace Custom
         {
             InitializeComponent();
             Logs.Text += "Логи\n";
-            projectName();
         }
 
         //==========================================
@@ -79,7 +80,7 @@ namespace Custom
                 case 1:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        inletBlocks_List.Add(new InletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text)});
+                        inletBlocks_List.Add(new InletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nВнутренний блок\n" +
                             inletBlocks_List[inletBlocks_List.Count - 1].name + " || " +
                             inletBlocks_List[inletBlocks_List.Count - 1].count.ToString() + " шт.\n";
@@ -90,7 +91,7 @@ namespace Custom
                 case 2:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        Splitters_List.Add(new Splitters { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text)});
+                        Splitters_List.Add(new Splitters { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nРазветвитель\n" +
                             Splitters_List[Splitters_List.Count - 1].name + " || " +
                             Splitters_List[Splitters_List.Count - 1].count.ToString() + " шт.\n";
@@ -101,7 +102,7 @@ namespace Custom
                 case 3:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        Tubes_List.Add(new Tubes { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text)});
+                        Tubes_List.Add(new Tubes { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nМедная труба\n" +
                             Tubes_List[Tubes_List.Count - 1].name + " || " +
                             Tubes_List[Tubes_List.Count - 1].count.ToString() + " м\n";
@@ -112,7 +113,7 @@ namespace Custom
                 case 4:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        Colds_List.Add(new Colds { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text)});
+                        Colds_List.Add(new Colds { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nХладагент\n" +
                             Colds_List[Colds_List.Count - 1].name + " || " +
                             Colds_List[Colds_List.Count - 1].count.ToString() + " кг.\n";
@@ -218,12 +219,12 @@ namespace Custom
         //==========================================
         //Написать название проекта на картинке
         //==========================================
-        void projectName()
+        void projectName(string name)
         {
             var imagePath = @"C:\Users\user\Desktop\FirstList.jpg";
-            var text = "Здесь будет наименование проекта";
+            var text = name;
             var resultPath = @"C:\Users\user\Desktop\FirstList2222.jpg";
-            
+
             var textColor = Brushes.Red;
 
             var fontSize = 40;
@@ -232,7 +233,7 @@ namespace Custom
 
             var font =
                 new Typeface(
-                    new FontFamily("Segoe UI"), FontStyles.Normal,
+                    new System.Windows.Media.FontFamily("Segoe UI"), FontStyles.Normal,
                     FontWeights.Bold, FontStretches.SemiExpanded);
 
             var image = BitmapFrame.Create(new Uri("file://" + imagePath));
@@ -250,7 +251,7 @@ namespace Custom
 
             var textWidth = formattedText.Width;
             var textHeight = formattedText.Height;
-            
+
             var drawingVisual = new DrawingVisual();
             using (var drawingContext = drawingVisual.RenderOpen())
             {
@@ -277,6 +278,197 @@ namespace Custom
         //==========================================
         //==========================================
         //==========================================
+
+
+        //==========================================
+        //Всё для создания Excel файла
+        //==========================================
+        private void CreateExcel_Click(object sender, RoutedEventArgs e)
+        {
+            IWorkbook workbook;
+            using (FileStream fileStream = new FileStream(@"C:\Users\user\Desktop\Работа\Кастомка\Custom\Custom\Files\BlocksTemplate.xls", FileMode.Open, FileAccess.Read))
+            {
+                workbook = new HSSFWorkbook(fileStream); // Считываем загруженный файл
+            }
+            ISheet sheet = workbook.GetSheetAt(0);
+            ISheet sheet1 = workbook.GetSheetAt(1);
+            ISheet sheet2 = workbook.GetSheetAt(2);
+
+
+            //==========================================
+            //Третий лист с характеристиками внешних и внутренних блоков
+            //==========================================
+
+            //Внешние блоки
+            if (outletBlocks_List.Count > 0)
+            {
+                for (int j = 0; j < outletBlocks_List.Count; j++)
+                {
+                    for (int i = 0; i < 16; i++)
+                    {
+                        CopyRow(workbook, workbook, sheet2, sheet, i, i + 16 * j);
+                        switch (i)
+                        {
+                            case 2:
+                                string[] temp = outletBlocks_List[j].name.Split('/');
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(temp[1].Replace(" ", ""));
+                                sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            //Внутренние блоки
+
+            if (inletBlocks_List.Count > 0)
+            {
+                for (int j = 0; j < inletBlocks_List.Count; j++)
+                {
+                    for (int i = 0; i < 14; i++)
+                    {
+                        int newPos = i + 14 * j + 16 * outletBlocks_List.Count;
+                        CopyRow(workbook, workbook, sheet2, sheet1, i, newPos);
+                        switch (i)
+                        {
+                            case 2:
+                                string[] temp = inletBlocks_List[j].name.Split('/');
+                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(temp[1].Replace(" ", ""));
+                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(inletBlocks_List[j].count);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            //==========================================
+            //==========================================
+            //==========================================
+
+            workbook.GetSheetAt(0).SetActive(false);
+
+            workbook.GetSheetAt(1).SetActive(false);
+
+            FileStream file = File.Create($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
+            workbook.Write(file);
+            file.Close();
+            Logs.Text += "temp";
+
+        }
+
+        public int SetValue(string template, string val, ISheet ws, int rowNum)
+        {
+            var cells = ws.GetRow(rowNum).Cells;
+            int n = 0;
+            foreach (var item in cells)
+            {
+                if (item.StringCellValue.Contains(template))
+                {
+                    n = item.ColumnIndex;
+                    return n;
+                }
+            }
+
+            return n;
+        }
+
+
+        public void CopyRow(IWorkbook destWorkbook,
+            IWorkbook sourceWorkbook,
+            ISheet newWorksheet,
+            ISheet oldWorksheet,
+            int sourceRowNum,
+            int destinationRowNum)
+        {
+            IRow newRow = newWorksheet.GetRow(destinationRowNum);
+            IRow sourceRow = oldWorksheet.GetRow(sourceRowNum);
+
+            if (sourceRow != null)
+            {
+                if (newRow == null)
+                {
+                    newRow = newWorksheet.CreateRow(destinationRowNum);
+                }
+                newRow.Height = sourceRow.Height;
+
+                // Loop through source columns to add to new row
+                for (int i = 0; i < sourceRow.LastCellNum; i++)
+                {
+                    // Grab a copy of the old/new cell
+                    HSSFCell oldCell = (HSSFCell)sourceRow.GetCell(i);
+                    HSSFCell newCell = (HSSFCell)newRow.CreateCell(i);
+
+                    // If the old cell is null jump to next cell
+                    if (oldCell == null)
+                    {
+                        continue;
+                    }
+
+                    HSSFCellStyle origCellStyle = (HSSFCellStyle)sourceWorkbook.GetCellStyleAt(oldCell.CellStyle.Index);
+                    //// Copy style from old cell and apply to new cell
+                    HSSFCellStyle newCellStyle; // = (HSSFCellStyle)destWorkbook.CreateCellStyle();
+                    //newCellStyle.CloneStyleFrom(origCellStyle);
+                    newCellStyle = origCellStyle;
+                    newCell.CellStyle = newCellStyle;
+
+                    // If there is a cell comment, copy
+                    if (oldCell.CellComment != null)
+                        newCell.CellComment = oldCell.CellComment;
+
+                    // If there is a cell hyperlink, copy
+                    if (oldCell.Hyperlink != null)
+                        newCell.Hyperlink = oldCell.Hyperlink;
+
+                    //// Set the cell data type
+                    newCell.SetCellType(oldCell.CellType);
+
+                    if (sourceRow.IsFormatted)
+                    {
+                        newRow.RowStyle = sourceRow.RowStyle;
+                    }
+
+                    // Set the cell data value
+                    switch (oldCell.CellType)
+                    {
+                        case CellType.Blank:
+                            newCell.SetCellValue(oldCell.StringCellValue);
+                            break;
+                        case CellType.Boolean:
+                            newCell.SetCellValue(oldCell.BooleanCellValue);
+                            break;
+                        case CellType.Error:
+                            newCell.SetCellErrorValue(oldCell.ErrorCellValue);
+                            break;
+                        case CellType.Formula:
+                            newCell.SetCellFormula(oldCell.CellFormula);
+                            break;
+                        case CellType.Numeric:
+                            newCell.SetCellValue(oldCell.NumericCellValue);
+                            break;
+                        case CellType.String:
+                            newCell.SetCellValue(oldCell.RichStringCellValue);
+                            break;
+                        case CellType.Unknown:
+                            newCell.SetCellValue(oldCell.StringCellValue);
+                            break;
+                    }
+                }
+
+                for (int i = 0; i < oldWorksheet.NumMergedRegions; i++)
+                {
+                    CellRangeAddress cellRangeAddress = oldWorksheet.GetMergedRegion(i);
+                    if (cellRangeAddress.FirstRow == sourceRow.RowNum)
+                    {
+                        CellRangeAddress newCellRangeAddress = new CellRangeAddress(destinationRowNum,
+                            destinationRowNum + cellRangeAddress.LastRow - cellRangeAddress.FirstRow,
+                            cellRangeAddress.FirstColumn,
+                            cellRangeAddress.LastColumn);
+
+                        newWorksheet.AddMergedRegion(newCellRangeAddress);
+                    }
+                }
+            }
+        }
     }
 
 

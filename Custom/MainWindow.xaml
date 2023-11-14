@@ -119,6 +119,29 @@
         <!--==================================================-->
         <!--==================================================-->
 
+        <!--==================================================-->
+        <!--Название проекта-->
+        <!--==================================================-->
+        <TextBlock  Width="190" Height="38"
+                    Margin="0,0,1000,150"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"
+                    Text="Название проекта"/>
+        
+        <TextBox x:Name="projectNameTxt"
+                 Height="38" Width="350"
+                 Margin="0,0,840,90"
+                 Background="#EEEEEE"
+                 HorizontalContentAlignment="Left"
+                 VerticalContentAlignment="Center"
+                 FontSize="18"
+                 FontFamily="Comic Sans MS"
+                 TextWrapping="NoWrap"/>
+        <!--==================================================-->
+        <!--==================================================-->
+        <!--==================================================-->
+
         <ScrollViewer VerticalScrollBarVisibility="Visible" Margin="800,0,0,0">
             <TextBlock x:Name="Logs"
                        TextWrapping="Wrap"
@@ -134,7 +157,7 @@
 
         <Button x:Name="AddBtn" Width="70" Height="38" Margin="40,0,0,290" Content="Add" Click="Add_Click"/>
 
-        <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,0,1000,-350" Content="Выгрузить Excel" Click="Add_Click"/>
+        <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,0,1000,-350" Content="Выгрузить Excel" Click="CreateExcel_Click"/>
 
     </Grid>
 </Window>
