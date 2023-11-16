@@ -156,6 +156,20 @@ namespace Custom
             CB_ModelType.ItemsSource = tempList;
         }
 
+        private void Tubes_Selected(object sender, RoutedEventArgs e)
+        {
+            CB_ModelType.ItemsSource = null;
+            List<string> tempList = new List<string>();
+            StreamReader f = new StreamReader("Files/Tubes.txt");
+            while (!f.EndOfStream)
+            {
+                string s = f.ReadLine();
+                tempList.Add(s.Replace("\t", " "));
+            }
+            f.Close();
+            CB_ModelType.ItemsSource = tempList;
+        }
+
         //==========================================
         //==========================================
         //==========================================
@@ -290,14 +304,14 @@ namespace Custom
             {
                 workbook = new HSSFWorkbook(fileStream); // Считываем загруженный файл
             }
-            ISheet sheet = workbook.GetSheetAt(0);
-            ISheet sheet1 = workbook.GetSheetAt(1);
-            ISheet sheet2 = workbook.GetSheetAt(2);
-
 
             //==========================================
             //Третий лист с характеристиками внешних и внутренних блоков
             //==========================================
+
+            ISheet sheet = workbook.GetSheetAt(0); //Лист внешних блоков
+            ISheet sheet1 = workbook.GetSheetAt(1); //Лист внутренних блоков
+            ISheet sheet2 = workbook.GetSheetAt(2); //Лист с двумя типами блоков
 
             //Внешние блоки
             if (outletBlocks_List.Count > 0)
@@ -341,18 +355,20 @@ namespace Custom
                 }
             }
 
+            for (int i = 0; i < workbook.NumberOfSheets - 1; i++)
+            {
+                workbook.RemoveSheetAt(i);
+            }
+
             //==========================================
             //==========================================
             //==========================================
 
-            workbook.GetSheetAt(0).SetActive(false);
-
-            workbook.GetSheetAt(1).SetActive(false);
 
             FileStream file = File.Create($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
             workbook.Write(file);
             file.Close();
-            Logs.Text += "temp";
+            Logs.Text += "Третий лист создан\n";
 
         }
 
