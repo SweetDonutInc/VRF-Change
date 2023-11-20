@@ -102,7 +102,7 @@ namespace Custom
                 case 3:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        Tubes_List.Add(new Tubes { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
+                        Tubes_List.Add(new Tubes { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text.Replace('.', ',')) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nМедная труба\n" +
                             Tubes_List[Tubes_List.Count - 1].name + " || " +
                             Tubes_List[Tubes_List.Count - 1].count.ToString() + " м\n";
@@ -113,7 +113,7 @@ namespace Custom
                 case 4:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        Colds_List.Add(new Colds { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
+                        Colds_List.Add(new Colds { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text.Replace('.', ',')) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nХладагент\n" +
                             Colds_List[Colds_List.Count - 1].name + " || " +
                             Colds_List[Colds_List.Count - 1].count.ToString() + " кг.\n";
@@ -132,7 +132,7 @@ namespace Custom
         {
             CB_ModelType.ItemsSource = null;
             List<string> tempList = new List<string>();
-            StreamReader f = new StreamReader("Files/OutletBlocks.txt");
+            StreamReader f = new StreamReader("Files/Hisense/OutletBlocks.txt");
             while (!f.EndOfStream)
             {
                 string s = f.ReadLine();
@@ -146,7 +146,21 @@ namespace Custom
         {
             CB_ModelType.ItemsSource = null;
             List<string> tempList = new List<string>();
-            StreamReader f = new StreamReader("Files/InletBlocks.txt");
+            StreamReader f = new StreamReader("Files/Hisense/InletBlocks.txt");
+            while (!f.EndOfStream)
+            {
+                string s = f.ReadLine();
+                tempList.Add(s.Replace("\t", " "));
+            }
+            f.Close();
+            CB_ModelType.ItemsSource = tempList;
+        }
+
+        private void Splitters_Selected(object sender, RoutedEventArgs e)
+        {
+            CB_ModelType.ItemsSource = null;
+            List<string> tempList = new List<string>();
+            StreamReader f = new StreamReader("Files/Hisense/Splitters.txt");
             while (!f.EndOfStream)
             {
                 string s = f.ReadLine();
@@ -160,7 +174,21 @@ namespace Custom
         {
             CB_ModelType.ItemsSource = null;
             List<string> tempList = new List<string>();
-            StreamReader f = new StreamReader("Files/Tubes.txt");
+            StreamReader f = new StreamReader("Files/Hisense/Tubes.txt");
+            while (!f.EndOfStream)
+            {
+                string s = f.ReadLine();
+                tempList.Add(s.Replace("\t", " "));
+            }
+            f.Close();
+            CB_ModelType.ItemsSource = tempList;
+        }
+
+        private void Colds_Selected(object sender, RoutedEventArgs e)
+        {
+            CB_ModelType.ItemsSource = null;
+            List<string> tempList = new List<string>();
+            StreamReader f = new StreamReader("Files/Hisense/XColds.txt");
             while (!f.EndOfStream)
             {
                 string s = f.ReadLine();
@@ -300,9 +328,35 @@ namespace Custom
         private void CreateExcel_Click(object sender, RoutedEventArgs e)
         {
             IWorkbook workbook;
-            using (FileStream fileStream = new FileStream(@"C:\Users\user\Desktop\Работа\Кастомка\Custom\Custom\Files\BlocksTemplate.xls", FileMode.Open, FileAccess.Read))
+            using (FileStream fileStream = new FileStream("Files/BlocksTemplate.xls", FileMode.Open, FileAccess.Read))
             {
                 workbook = new HSSFWorkbook(fileStream); // Считываем загруженный файл
+            }
+
+            //==========================================
+            //Второй лист: перечисление всех блоков
+            //==========================================
+
+            ISheet sheet3 = workbook.GetSheetAt(3); //Лист внешних блоков
+            ISheet sheet4 = workbook.GetSheetAt(4); //Лист результата
+
+            if (outletBlocks_List.Count > 0)
+            {
+                for (int j = 0; j < outletBlocks_List.Count; j++)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        CopyRow(workbook, workbook, sheet4, sheet3, i, i + 4 * j);
+                        switch (i)
+                        {
+                            case 2:
+                                string[] temp = outletBlocks_List[j].name.Split('/');
+                                sheet4.GetRow(i + 4 * j).GetCell(1).SetCellValue(temp[1].Replace(" ", ""));
+                                sheet4.GetRow(i + 4 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
+                                break;
+                        }
+                    }
+                }
             }
 
             //==========================================
@@ -355,10 +409,10 @@ namespace Custom
                 }
             }
 
-            for (int i = 0; i < workbook.NumberOfSheets - 1; i++)
-            {
-                workbook.RemoveSheetAt(i);
-            }
+            //for (int i = 0; i < workbook.NumberOfSheets - 1; i++)
+            //{
+            //    workbook.RemoveSheetAt(i);
+            //}
 
             //==========================================
             //==========================================
@@ -371,23 +425,6 @@ namespace Custom
             Logs.Text += "Третий лист создан\n";
 
         }
-
-        public int SetValue(string template, string val, ISheet ws, int rowNum)
-        {
-            var cells = ws.GetRow(rowNum).Cells;
-            int n = 0;
-            foreach (var item in cells)
-            {
-                if (item.StringCellValue.Contains(template))
-                {
-                    n = item.ColumnIndex;
-                    return n;
-                }
-            }
-
-            return n;
-        }
-
 
         public void CopyRow(IWorkbook destWorkbook,
             IWorkbook sourceWorkbook,

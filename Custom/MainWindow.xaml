@@ -89,9 +89,9 @@
                   VerticalContentAlignment="Center">
             <ComboBoxItem Content="Внешний блок" Selected="OutletBlock_Selected"></ComboBoxItem>
             <ComboBoxItem Content="Внутренний блок" Selected="InletBlock_Selected"></ComboBoxItem>
-            <ComboBoxItem Content="Разветвители"></ComboBoxItem>
+            <ComboBoxItem Content="Разветвители"  Selected="Splitters_Selected"></ComboBoxItem>
             <ComboBoxItem Content="Медная труба" Selected="Tubes_Selected"></ComboBoxItem>
-            <ComboBoxItem Content="Хладагент"></ComboBoxItem>
+            <ComboBoxItem Content="Хладагент" Selected="Colds_Selected"></ComboBoxItem>
         </ComboBox>
 
         <ComboBox x:Name="CB_ModelType"
