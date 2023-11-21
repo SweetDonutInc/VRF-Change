@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Custom"
         mc:Ignorable="d"
-        Title="VRXF" Height="1024" Width="1600" ResizeMode="NoResize">
+        Title="VRXF" Height="850" Width="1600" ResizeMode="NoResize">
     <Window.Resources>
         <ResourceDictionary>
             <Style TargetType="Button" x:Name="ButtonTamplate">
@@ -45,28 +45,28 @@
     </Window.Resources>
     <Grid Background="#222831">
 
-        <Button x:Name="Hisense" Width="190" Height="60" Margin="0,0,1300,850" Content="Hisense" Click="Hisense_Click"/>
-        <Button x:Name="Dantex" Width="190" Height="60" Margin="0,0,890,850" Content="Dantex" Click="Dantex_Click"/>
-        <Button x:Name="Clivet" Width="190" Height="60" Margin="0,0,480,850" Content="Clivet" Click="Clivet_Click"/>
+        <Button x:Name="Hisense" Width="190" Height="60" Margin="0,0,1300,670" Content="Hisense" Click="Hisense_Click"/>
+        <Button x:Name="Dantex" Width="190" Height="60" Margin="0,0,890,670" Content="Dantex" Click="Dantex_Click"/>
+        <Button x:Name="Clivet" Width="190" Height="60" Margin="0,0,480,670" Content="Clivet" Click="Clivet_Click"/>
 
         <!--==================================================-->
         <!--TextBlock Тип/Модель/Кол-во-->
         <!--==================================================-->
         <TextBlock  Width="190" Height="38"
-                    Margin="0,0,1300,680"
+                    Margin="0,0,1300,560"
                     Text="Тип"
                     FontSize="18"
                     FontFamily="Comic Sans MS"
                     Foreground="#EEEEEE"/>
 
         <TextBlock  Width="280" Height="38"
-                    Margin="0,0,800,680"
+                    Margin="0,0,800,560"
                     Text="Модель"
                     FontSize="18"
                     FontFamily="Comic Sans MS"
                     Foreground="#EEEEEE"/>
         <TextBlock  Width="64" Height="38"
-                    Margin="0,0,425,680"
+                    Margin="0,0,425,560"
                     Text="Кол-во"
                     FontSize="18"
                     FontFamily="Comic Sans MS"
@@ -81,7 +81,7 @@
         <ComboBox x:Name="CB_BlockTypes" 
                   Width="190"
                   Height="38"
-                  Margin="0,0,1300,630"
+                  Margin="0,0,1300,500"
                   Background="#EEEEEE"
                   FontSize="18"
                   FontFamily="Comic Sans MS"
@@ -96,7 +96,7 @@
 
         <ComboBox x:Name="CB_ModelType"
                   Width="280" Height="38"
-                  Margin="0,0,800,630"
+                  Margin="0,0,800,500"
                   Background="#EEEEEE"
                   FontSize="18"
                   FontFamily="Comic Sans MS"
@@ -107,7 +107,7 @@
         
         <TextBox x:Name="TB_CountText"
                  Height="38" Width="64"
-                 Margin="0,0,425,630"
+                 Margin="0,0,425,500"
                  Background="#EEEEEE"
                  HorizontalContentAlignment="Center"
                  VerticalContentAlignment="Center"
@@ -120,10 +120,10 @@
         <!--==================================================-->
 
         <!--==================================================-->
-        <!--Название проекта-->
+        <!--Информация о проекте-->
         <!--==================================================-->
         <TextBlock  Width="190" Height="38"
-                    Margin="0,0,1300,400"
+                    Margin="0,0,1300,300"
                     FontSize="18"
                     FontFamily="Comic Sans MS"
                     Foreground="#EEEEEE"
@@ -131,13 +131,86 @@
         
         <TextBox x:Name="projectNameTxt"
                  Height="38" Width="350"
-                 Margin="0,0,1140,340"
+                 Margin="0,0,1140,240"
                  Background="#EEEEEE"
                  HorizontalContentAlignment="Left"
                  VerticalContentAlignment="Center"
                  FontSize="18"
                  FontFamily="Comic Sans MS"
                  TextWrapping="NoWrap"/>
+
+        <TextBlock  Width="200" Height="38"
+                    Margin="0,0,1290,130"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"
+                    Text="Руководитель проекта"/>
+
+        <TextBox x:Name="Worker"
+                 Height="38" Width="350"
+                 Margin="0,0,1140,70"
+                 Background="#EEEEEE"
+                 HorizontalContentAlignment="Left"
+                 VerticalContentAlignment="Center"
+                 FontSize="18"
+                 FontFamily="Comic Sans MS"
+                 TextWrapping="NoWrap"/>
+
+        <TextBlock  Width="350" Height="38"
+                    Margin="0,40,1140,0"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"
+                    Text="Дата"/>
+        <TextBox x:Name="Date"
+                 Height="38" Width="150"
+                 Margin="0,100,1340,0"
+                 HorizontalContentAlignment="Left"
+                 VerticalContentAlignment="Center"
+                 FontSize="18"
+                 FontFamily="Comic Sans MS" BorderThickness="0"/>
+
+        <TextBlock  Width="180" Height="38"
+                    Margin="0,40,970,0"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"
+                    Text="Система"/>
+        <TextBox x:Name="SystemName"
+                 Height="38" Width="180"
+                 Margin="0,100,970,0"
+                 HorizontalContentAlignment="Left"
+                 VerticalContentAlignment="Center"
+                 FontSize="18"
+                 FontFamily="Comic Sans MS" BorderThickness="0"/>
+
+        <TextBlock  Width="350" Height="38"
+                    Margin="0,210,1140,0"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"
+                    Text="Номер проекта"/>
+        <TextBox x:Name="PjNum"
+                 Height="38" Width="150"
+                 Margin="0,270,1340,0"
+                 HorizontalContentAlignment="Left"
+                 VerticalContentAlignment="Center"
+                 FontSize="18"
+                 FontFamily="Comic Sans MS" BorderThickness="0"/>
+
+        <TextBlock  Width="180" Height="38"
+                    Margin="0,210,970,0"
+                    FontSize="18"
+                    FontFamily="Comic Sans MS"
+                    Foreground="#EEEEEE"
+                    Text="Номер предложения"/>
+        <TextBox x:Name="OrderNum"
+                 Height="38" Width="180"
+                 Margin="0,270,970,0"
+                 HorizontalContentAlignment="Left"
+                 VerticalContentAlignment="Center"
+                 FontSize="18"
+                 FontFamily="Comic Sans MS" BorderThickness="0"/>
         <!--==================================================-->
         <!--==================================================-->
         <!--==================================================-->
@@ -153,11 +226,11 @@
                        Padding="50,10,0,0"/>
         </ScrollViewer>
 
-        <Button x:Name="AllClear" Width="190" Height="60" Margin="0,900,1300,0" Content="Очистить" Click="AllClear_Click" Visibility="Visible"/>
+        <Button x:Name="AllClear" Width="190" Height="60" Margin="0,700,1300,0" Content="Очистить" Click="AllClear_Click" Visibility="Visible"/>
 
-        <Button x:Name="AddBtn" Width="70" Height="38" Margin="0,0,260,630" Content="Add" Click="Add_Click"/>
+        <Button x:Name="AddBtn" Width="70" Height="38" Margin="0,0,260,500" Content="Add" Click="Add_Click"/>
 
-        <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,900,850,0" Content="Выгрузить Excel" Click="CreateExcel_Click"/>
+        <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,700,850,0" Content="Выгрузить Excel" Click="CreateExcel_Click"/>
 
     </Grid>
 </Window>

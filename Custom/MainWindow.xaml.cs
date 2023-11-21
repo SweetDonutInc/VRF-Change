@@ -23,6 +23,8 @@ using NPOI.XSSF.UserModel;
 using NPOI.SS.Util;
 using NPOI.HSSF.Util;
 using NPOI.HSSF.UserModel;
+using Spire.Xls;
+
 
 namespace Custom
 {
@@ -337,27 +339,208 @@ namespace Custom
             //Второй лист: перечисление всех блоков
             //==========================================
 
-            ISheet sheet3 = workbook.GetSheetAt(3); //Лист внешних блоков
-            ISheet sheet4 = workbook.GetSheetAt(4); //Лист результата
+            ISheet sheet3 = workbook.GetSheetAt(3); //Лист с заголовком внешнего блока
+            ISheet sheet4 = workbook.GetSheetAt(4); //Лист с внешними блоками
 
+            ISheet sheet5 = workbook.GetSheetAt(5); //Лист с заголовком внешнего блока
+            ISheet sheet6 = workbook.GetSheetAt(6); //Лист с внешними блоками
+
+            ISheet sheet7 = workbook.GetSheetAt(7); //Лист с заголовком внешнего рефнетов
+            ISheet sheet8 = workbook.GetSheetAt(8); //Лист с рефнетами
+
+            ISheet sheet9 = workbook.GetSheetAt(9); //Лист с заголовком медных труб
+            ISheet sheet10 = workbook.GetSheetAt(10); //Лист с медными трубами
+
+            ISheet sheet11 = workbook.GetSheetAt(11); //Лист с хладагентом
+
+            ISheet sheet12 = workbook.GetSheetAt(12); //Лист результата перечисления блоков
+
+            int newPos2List = 0;
+
+            //Заполняем внешние блоки
             if (outletBlocks_List.Count > 0)
             {
+                CopyRow(workbook, workbook, sheet12, sheet3, 0, 0);
                 for (int j = 0; j < outletBlocks_List.Count; j++)
                 {
-                    for (int i = 0; i < 4; i++)
+                    if (j < outletBlocks_List.Count - 1)
                     {
-                        CopyRow(workbook, workbook, sheet4, sheet3, i, i + 4 * j);
+                        for (int i = 0; i < 2; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet4, i + 3, i + 1 + 2 * j);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    string[] temp = outletBlocks_List[j].name.Split('/');
+                                    sheet12.GetRow(i + 1 + 2 * j).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
+                                    sheet12.GetRow(i + 1 + 2 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet4, i, i + 1 + 2 * j);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    string[] temp = outletBlocks_List[j].name.Split('/');
+                                    sheet12.GetRow(i + 1 + 2 * j).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
+                                    sheet12.GetRow(i + 1 + 2 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                newPos2List = outletBlocks_List.Count * 2 + 2; //Запоминаем позицию окончания
+            }
+
+            //Заполняем внутренние блоки
+            if (inletBlocks_List.Count > 0)
+            {
+                CopyRow(workbook, workbook, sheet12, sheet5, 0, newPos2List);
+                for (int j = 0; j < inletBlocks_List.Count; j++)
+                {
+                    if (j < inletBlocks_List.Count - 1)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet6, i + 4, i + 1 + 3 * j + newPos2List);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    string[] temp = inletBlocks_List[j].name.Split('/');
+                                    sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
+                                    sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(21).SetCellValue(inletBlocks_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet6, i, i + 1 + 3 * j + newPos2List);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    string[] temp = inletBlocks_List[j].name.Split('/');
+                                    sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
+                                    sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(21).SetCellValue(inletBlocks_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                newPos2List += inletBlocks_List.Count * 3 + 2; //Запоминаем позицию окончания
+            }
+
+            //Заполняем рефнеты/разветвители
+            if (Splitters_List.Count > 0)
+            {
+                CopyRow(workbook, workbook, sheet12, sheet7, 0, newPos2List);
+                for (int j = 0; j < Splitters_List.Count; j++)
+                {
+                    if (j < Splitters_List.Count - 1)
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet8, i + 3, i + 1 + 2 * j + newPos2List);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    string[] temp = Splitters_List[j].name.Split('/');
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(16).SetCellValue(Splitters_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet8, i, i + 1 + 2 * j + newPos2List);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    string[] temp = Splitters_List[j].name.Split('/');
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(16).SetCellValue(Splitters_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                newPos2List += Splitters_List.Count * 2 + 2; //Запоминаем позицию окончания
+            }
+
+            //Заполняем медные трубы
+            if (Tubes_List.Count > 0)
+            {
+                CopyRow(workbook, workbook, sheet12, sheet9, 0, newPos2List);
+                for (int j = 0; j < Tubes_List.Count; j++)
+                {
+                    if (j < Tubes_List.Count - 1)
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet10, i + 3, i + 1 + 2 * j + newPos2List);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(3).SetCellValue(Tubes_List[j].name);
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(16).SetCellValue(Tubes_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            CopyRow(workbook, workbook, sheet12, sheet10, i, i + 1 + 2 * j + newPos2List);
+                            switch (i + 1)
+                            {
+                                case 2:
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(3).SetCellValue(Tubes_List[j].name);
+                                    sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(16).SetCellValue(Tubes_List[j].count);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                newPos2List += Tubes_List.Count * 2 + 2; //Запоминаем позицию окончания
+            }
+
+            //Заполняем хладагент
+            if (Colds_List.Count > 0)
+            {
+                for (int j = 0; j < Colds_List.Count; j++)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        CopyRow(workbook, workbook, sheet12, sheet11, i, i + 3 * j + newPos2List);
                         switch (i)
                         {
                             case 2:
-                                string[] temp = outletBlocks_List[j].name.Split('/');
-                                sheet4.GetRow(i + 4 * j).GetCell(1).SetCellValue(temp[1].Replace(" ", ""));
-                                sheet4.GetRow(i + 4 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
+                                sheet12.GetRow(i + 3 * j + newPos2List).GetCell(3).SetCellValue(Colds_List[j].name);
+                                sheet12.GetRow(i + 3 * j + newPos2List).GetCell(16).SetCellValue(Colds_List[j].count);
                                 break;
                         }
                     }
                 }
+
+                newPos2List += 4; //Запоминаем позицию окончания
             }
+
+            sheet12.SetRowBreak(newPos2List - 1);
 
             //==========================================
             //Третий лист с характеристиками внешних и внутренних блоков
@@ -409,19 +592,28 @@ namespace Custom
                 }
             }
 
-            //for (int i = 0; i < workbook.NumberOfSheets - 1; i++)
-            //{
-            //    workbook.RemoveSheetAt(i);
-            //}
+            for (int i = 0; i < outletBlocks_List.Count * 16 + inletBlocks_List.Count * 14; i++)
+            {
+                CopyRow(workbook, workbook, sheet12, sheet2, i, newPos2List + i);
+            }
 
             //==========================================
             //==========================================
             //==========================================
 
+            for(int i = 0; i < 12; i++)
+            {
+                workbook.RemoveSheetAt(0);
+            }
 
             FileStream file = File.Create($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
             workbook.Write(file);
             file.Close();
+
+            Workbook wb = new Workbook();
+            wb.LoadFromFile($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
+            wb.SaveToFile($@"C:\Users\user\Desktop\{projectNameTxt.Text}.pdf", FileFormat.PDF);
+
             Logs.Text += "Третий лист создан\n";
 
         }
