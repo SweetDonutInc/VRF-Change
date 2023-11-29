@@ -13,17 +13,28 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using iTextSharp;
+using iTextSharp.text;
 using iTextSharp.text.pdf;
-using iTextSharp.text.pdf.parser;
 using System.IO;
 using System.Data;
 using System.Globalization;
+using System.Drawing.Printing;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.Util;
 using NPOI.HSSF.Util;
 using NPOI.HSSF.UserModel;
 using Spire.Xls;
+using WW.Cad.Base;
+using WW.Cad.Drawing;
+using WW.Cad.IO;
+using WW.Cad.Model;
+using WW.Cad.Model.Objects;
+using WW.Cad.Model.Tables;
+using WW.Drawing;
+using WW.Math;
+using WW.Math.Geometry;
 
 
 namespace Custom
@@ -42,6 +53,24 @@ namespace Custom
         {
             InitializeComponent();
             Logs.Text += "Логи\n";
+
+            //СЧИТАТЬ ДВГ ЗАПИСАТЬ В ДХФ СЧИТАТЬ ПОСТРОЧНО ДХФ ЗАМЕНИТЬ СТРОКИ СОХРАНИТЬ КАК ДХФ ЕЕЕЕЕЕЕЕЕЕ
+            //    DwgReader dwgReader = new DwgReader("Files/K32.dwg");
+            //    DxfModel model = dwgReader.Read();
+            //    DxfWriter.Write("Files/K32.dxf", model);
+            //    string s;
+            //    string text = "";
+            //    using (var f = new StreamReader("Files/K32.dxf", Encoding.GetEncoding(1251)))
+            //    {
+            //        while ((s = f.ReadLine()) != null)
+            //        {
+            //            text += s.Replace("AVC", "AVRF") +"\n";
+            //        }
+            //    }
+            //    string path = @"C:\Users\user\Desktop\my_file.dwg";
+            //    StreamWriter sw = new StreamWriter(path, true, Encoding.GetEncoding(1251));
+            //    sw.Write(text);
+            //    sw.Close();
         }
 
         //==========================================
@@ -128,7 +157,7 @@ namespace Custom
         }
 
         //==========================================
-        //Считывание с блокнотиков моделей при выбранном типе объекта
+        //Считывание с блокнотиков моделей при выбранном типе производителя
         //==========================================
         private void OutletBlock_Selected(object sender, RoutedEventArgs e)
         {
@@ -234,9 +263,9 @@ namespace Custom
             isHisense = true;
             isDantex = false;
             isClivet = false;
-            Hisense.Background = new SolidColorBrush(Color.FromRgb(8, 217, 214));
-            Dantex.Background = new SolidColorBrush(Color.FromRgb(0, 173, 181));
-            Clivet.Background = new SolidColorBrush(Color.FromRgb(0, 173, 181));
+            Hisense.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(8, 217, 214));
+            Dantex.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 173, 181));
+            Clivet.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 173, 181));
         }
 
         private void Dantex_Click(object sender, RoutedEventArgs e)
@@ -244,9 +273,9 @@ namespace Custom
             isHisense = false;
             isDantex = true;
             isClivet = false;
-            Dantex.Background = new SolidColorBrush(Color.FromRgb(8, 217, 214));
-            Hisense.Background = new SolidColorBrush(Color.FromRgb(0, 173, 181));
-            Clivet.Background = new SolidColorBrush(Color.FromRgb(0, 173, 181));
+            Dantex.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(8, 217, 214));
+            Hisense.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 173, 181));
+            Clivet.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 173, 181));
         }
 
         private void Clivet_Click(object sender, RoutedEventArgs e)
@@ -254,9 +283,9 @@ namespace Custom
             isHisense = false;
             isDantex = false;
             isClivet = true;
-            Clivet.Background = new SolidColorBrush(Color.FromRgb(8, 217, 214));
-            Dantex.Background = new SolidColorBrush(Color.FromRgb(0, 173, 181));
-            Hisense.Background = new SolidColorBrush(Color.FromRgb(0, 173, 181));
+            Clivet.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(8, 217, 214));
+            Dantex.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 173, 181));
+            Hisense.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 173, 181));
         }
 
 
@@ -265,11 +294,11 @@ namespace Custom
         //==========================================
         void projectName(string name)
         {
-            var imagePath = @"C:\Users\user\Desktop\FirstList.jpg";
+            var imagePath = System.IO.Path.GetFullPath(@"Files\Images\FirstList.jpg");
             var text = name;
-            var resultPath = @"C:\Users\user\Desktop\FirstList2222.jpg";
+            var resultPath = @"Files\TempFiles\newImage.jpg";
 
-            var textColor = Brushes.Red;
+            var textColor = System.Windows.Media.Brushes.Black;
 
             var fontSize = 40;
 
@@ -305,7 +334,7 @@ namespace Custom
                     new Rect(0, 0, imageWidth, imageHeight));
                 drawingContext.DrawText(
                     formattedText,
-                    new Point(195, 510));
+                    new System.Windows.Point(195, 510));
             }
 
             var bmp =
@@ -325,14 +354,14 @@ namespace Custom
 
 
         //==========================================
-        //Всё для создания Excel файла
+        //Создания Excel и PDF файлов
         //==========================================
         private void CreateExcel_Click(object sender, RoutedEventArgs e)
         {
             IWorkbook workbook;
             using (FileStream fileStream = new FileStream("Files/BlocksTemplate.xls", FileMode.Open, FileAccess.Read))
             {
-                workbook = new HSSFWorkbook(fileStream); // Считываем загруженный файл
+                workbook = new HSSFWorkbook(fileStream); // Считываем шаблонный файл
             }
 
             //==========================================
@@ -352,8 +381,9 @@ namespace Custom
             ISheet sheet10 = workbook.GetSheetAt(10); //Лист с медными трубами
 
             ISheet sheet11 = workbook.GetSheetAt(11); //Лист с хладагентом
-
             ISheet sheet12 = workbook.GetSheetAt(12); //Лист результата перечисления блоков
+
+            ISheet sheet13 = workbook.GetSheetAt(13); //Лист с шапкой
 
             int newPos2List = 0;
 
@@ -592,6 +622,14 @@ namespace Custom
                 }
             }
 
+            for (int i = 0; i < 17; i++)
+            {
+                CopyRow(workbook, workbook, sheet12, sheet13, i, newPos2List + i);
+                if (i == 1) insertImage(workbook, sheet12, 0, newPos2List + i, "Files/Images/AW.png");
+            }
+
+            newPos2List += 17;
+
             for (int i = 0; i < outletBlocks_List.Count * 16 + inletBlocks_List.Count * 14; i++)
             {
                 CopyRow(workbook, workbook, sheet12, sheet2, i, newPos2List + i);
@@ -601,29 +639,24 @@ namespace Custom
             //==========================================
             //==========================================
 
-            for(int i = 0; i < 12; i++)
+            for (int i = 0; i < 12; i++)
             {
                 workbook.RemoveSheetAt(0);
             }
-
+            workbook.RemoveSheetAt(1);
             FileStream file = File.Create($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
             workbook.Write(file);
             file.Close();
 
             Workbook wb = new Workbook();
             wb.LoadFromFile($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
-            wb.SaveToFile($@"C:\Users\user\Desktop\{projectNameTxt.Text}.pdf", FileFormat.PDF);
+            wb.SaveToFile($@"C:\Users\user\Desktop\{projectNameTxt.Text}.pdf", Spire.Xls.FileFormat.PDF);
 
             Logs.Text += "Третий лист создан\n";
 
         }
 
-        public void CopyRow(IWorkbook destWorkbook,
-            IWorkbook sourceWorkbook,
-            ISheet newWorksheet,
-            ISheet oldWorksheet,
-            int sourceRowNum,
-            int destinationRowNum)
+        public void CopyRow(IWorkbook destWorkbook, IWorkbook sourceWorkbook, ISheet newWorksheet, ISheet oldWorksheet, int sourceRowNum, int destinationRowNum)
         {
             IRow newRow = newWorksheet.GetRow(destinationRowNum);
             IRow sourceRow = oldWorksheet.GetRow(sourceRowNum);
@@ -675,25 +708,25 @@ namespace Custom
                     // Set the cell data value
                     switch (oldCell.CellType)
                     {
-                        case CellType.Blank:
+                        case NPOI.SS.UserModel.CellType.Blank:
                             newCell.SetCellValue(oldCell.StringCellValue);
                             break;
-                        case CellType.Boolean:
+                        case NPOI.SS.UserModel.CellType.Boolean:
                             newCell.SetCellValue(oldCell.BooleanCellValue);
                             break;
-                        case CellType.Error:
+                        case NPOI.SS.UserModel.CellType.Error:
                             newCell.SetCellErrorValue(oldCell.ErrorCellValue);
                             break;
-                        case CellType.Formula:
+                        case NPOI.SS.UserModel.CellType.Formula:
                             newCell.SetCellFormula(oldCell.CellFormula);
                             break;
-                        case CellType.Numeric:
+                        case NPOI.SS.UserModel.CellType.Numeric:
                             newCell.SetCellValue(oldCell.NumericCellValue);
                             break;
-                        case CellType.String:
+                        case NPOI.SS.UserModel.CellType.String:
                             newCell.SetCellValue(oldCell.RichStringCellValue);
                             break;
-                        case CellType.Unknown:
+                        case NPOI.SS.UserModel.CellType.Unknown:
                             newCell.SetCellValue(oldCell.StringCellValue);
                             break;
                     }
@@ -713,6 +746,57 @@ namespace Custom
                     }
                 }
             }
+        }
+
+
+        //==========================================
+        //Создание титульника и его запись в PDF
+        //==========================================
+
+        private void CreateImage_Click(object sender, RoutedEventArgs e)
+        {
+            projectName(projectNameTxt.Text);
+
+            string pdfpath = @"Files\TempFiles\out.pdf";
+            string imagepath =  @"Files\TempFiles\newImage.jpg";
+
+            Document doc = new Document(PageSize.A4, 0f, 0f, 0f, 0f);
+
+            try
+            {
+                PdfWriter.GetInstance(doc, new FileStream(pdfpath, FileMode.Create));
+                doc.Open();
+                iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(imagepath);
+                image.ScalePercent(48f);
+                doc.Add(image);
+            }
+            catch (Exception ex)
+            {
+                //Log error;
+            }
+            finally
+            {
+                doc.Close();
+            }
+
+
+        }
+
+        //==========================================
+        //Добавляем картинки внешних/внутренних блоков,
+        //рефнетов, трубок, хладагента в самый нижний лист
+        //==========================================
+        void insertImage(IWorkbook workbook, ISheet sheet, int col, int row, string path)
+        {
+            byte[] data = File.ReadAllBytes(path);
+            int pictureindex = workbook.AddPicture(data, PictureType.PNG);
+            ICreationHelper helper = workbook.GetCreationHelper();
+            IDrawing drawing = sheet.CreateDrawingPatriarch();
+            IClientAnchor anchor = helper.CreateClientAnchor();
+            anchor.Col1 = col;//0 index based column
+            anchor.Row1 = row;//0 index based row
+            IPicture picture = drawing.CreatePicture(anchor, pictureindex);
+            picture.Resize();
         }
     }
 

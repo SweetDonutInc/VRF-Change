@@ -232,5 +232,9 @@
 
         <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,700,850,0" Content="Выгрузить Excel" Click="CreateExcel_Click"/>
 
+        <Button x:Name="Create_Image" Width="190" Height="60" Margin="0,700,400,0" Click="CreateImage_Click">
+            <TextBlock Text="Создать титульный лист" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Button>
+
     </Grid>
 </Window>
