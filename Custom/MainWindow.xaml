@@ -226,14 +226,24 @@
                        Padding="50,10,0,0"/>
         </ScrollViewer>
 
-        <Button x:Name="AllClear" Width="190" Height="60" Margin="0,700,1300,0" Content="Очистить" Click="AllClear_Click" Visibility="Visible"/>
+        <Button x:Name="AllClear" Width="190" Height="60" Margin="440,700,0,0" Click="AllClear_Click" Visibility="Visible">
+            <TextBlock Text="Очистить все поля" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Button>
 
         <Button x:Name="AddBtn" Width="70" Height="38" Margin="0,0,260,500" Content="Add" Click="Add_Click"/>
 
-        <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,700,850,0" Content="Выгрузить Excel" Click="CreateExcel_Click"/>
+        <Button x:Name="Create_Excel" Width="190" Height="60" Margin="0,700,1300,0" Content="Выгрузить Excel" Click="CreateExcel_Click"/>
 
-        <Button x:Name="Create_Image" Width="190" Height="60" Margin="0,700,400,0" Click="CreateImage_Click">
-            <TextBlock Text="Создать титульный лист" TextWrapping="Wrap" TextAlignment="Center"/>
+        <Button x:Name="Upload_DWG" Width="190" Height="60" Margin="0,550,1300,0" Click="UploadDwg_Click">
+            <TextBlock Text="Загрузить чертёж (.dwg)" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Button>
+
+        <Button x:Name="Upload_Pdf" Width="190" Height="60" Margin="0,700,890,0" Click="UploadPDF_Click">
+            <TextBlock Text="Загрузить чертёж (.pdf)" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Button>
+
+        <Button x:Name="Collect_Pdf" Width="190" Height="60" Margin="0,700,480,0" Click="CollectPDF_Click">
+            <TextBlock Text="Выгрузить PDF" TextWrapping="Wrap" TextAlignment="Center"/>
         </Button>
 
     </Grid>

@@ -52,25 +52,9 @@ namespace Custom
         public MainWindow()
         {
             InitializeComponent();
-            Logs.Text += "Логи\n";
-
-            //СЧИТАТЬ ДВГ ЗАПИСАТЬ В ДХФ СЧИТАТЬ ПОСТРОЧНО ДХФ ЗАМЕНИТЬ СТРОКИ СОХРАНИТЬ КАК ДХФ ЕЕЕЕЕЕЕЕЕЕ
-            //    DwgReader dwgReader = new DwgReader("Files/K32.dwg");
-            //    DxfModel model = dwgReader.Read();
-            //    DxfWriter.Write("Files/K32.dxf", model);
-            //    string s;
-            //    string text = "";
-            //    using (var f = new StreamReader("Files/K32.dxf", Encoding.GetEncoding(1251)))
-            //    {
-            //        while ((s = f.ReadLine()) != null)
-            //        {
-            //            text += s.Replace("AVC", "AVRF") +"\n";
-            //        }
-            //    }
-            //    string path = @"C:\Users\user\Desktop\my_file.dwg";
-            //    StreamWriter sw = new StreamWriter(path, true, Encoding.GetEncoding(1251));
-            //    sw.Write(text);
-            //    sw.Close();
+            Logs.Text += "Логи:\n\nКраткая инструкция:\n1. Выбираем производителя\n2. Заполняем блоки\n" +
+                "3. Заполняем всю информацию для шапки Excel-файла\n4. Загружаем DWG-чертёж (Может занять несколько секунд)\n5. Выгружаем Excel-файл\n" +
+                "6. Загружаем PDF чертежа\n7. Выгружаем итоговый PDF-файл\n8. Вы великолепны\n";
         }
 
         //==========================================
@@ -84,7 +68,9 @@ namespace Custom
             Splitters_List.Clear();
             Tubes_List.Clear();
             Colds_List.Clear();
-            Logs.Text = "Логи\n";
+            Logs.Text += "Логи:\n\nКраткая инструкция:\n1. Выбираем производителя\n2. Заполняем блоки\n" +
+                "3. Заполняем всю информацию для шапки Excel-файла\n4. Загружаем DWG-чертёж\n5. Выгружаем Excel-файл\n" +
+                "6. Загружаем PDF чертежа\n7. Выгружаем итоговый PDF-файл\n8. Вы великолепны\n";
 
             isHisense = false;
         }
@@ -300,7 +286,7 @@ namespace Custom
 
             var textColor = System.Windows.Media.Brushes.Black;
 
-            var fontSize = 40;
+            var fontSize = 36;
 
             var dpi = 96;
 
@@ -334,7 +320,7 @@ namespace Custom
                     new Rect(0, 0, imageWidth, imageHeight));
                 drawingContext.DrawText(
                     formattedText,
-                    new System.Windows.Point(195, 510));
+                    new System.Windows.Point(195, 500));
             }
 
             var bmp =
@@ -521,6 +507,7 @@ namespace Custom
                         for (int i = 0; i < 2; i++)
                         {
                             CopyRow(workbook, workbook, sheet12, sheet10, i + 3, i + 1 + 2 * j + newPos2List);
+                            if(i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Tubes.png");
                             switch (i + 1)
                             {
                                 case 2:
@@ -644,17 +631,28 @@ namespace Custom
                 workbook.RemoveSheetAt(0);
             }
             workbook.RemoveSheetAt(1);
-            FileStream file = File.Create($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
-            workbook.Write(file);
-            file.Close();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Title = "Save Excel";
+            saveFileDialog.Filter = "Excel files (*.xls)|*.xls";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                excelPath = saveFileDialog.FileName;
+                FileStream file = File.Create(excelPath);
+                workbook.Write(file);
+                file.Close();
+            }
 
             Workbook wb = new Workbook();
-            wb.LoadFromFile($@"C:\Users\user\Desktop\{projectNameTxt.Text}.xls");
-            wb.SaveToFile($@"C:\Users\user\Desktop\{projectNameTxt.Text}.pdf", Spire.Xls.FileFormat.PDF);
+            wb.LoadFromFile(excelPath);
+            wb.SaveToFile("Files/TempFiles/tempExcel.pdf", Spire.Xls.FileFormat.PDF);
 
-            Logs.Text += "Третий лист создан\n";
-
+            CreateTitle();
+            Logs.Text += "Excel-файл выгружен\n";
+            
         }
+
+        public string excelPath { get; set; }
 
         public void CopyRow(IWorkbook destWorkbook, IWorkbook sourceWorkbook, ISheet newWorksheet, ISheet oldWorksheet, int sourceRowNum, int destinationRowNum)
         {
@@ -748,12 +746,105 @@ namespace Custom
             }
         }
 
+        //==========================================
+        //Загружаем DWG, заменяем названия блоков на наши 
+        //==========================================
+
+        private void UploadDwg_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "DWG files (*.dwg)|*.dwg";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                //Считываем загруженный DWG временно превращая его в DXF
+                DwgReader dwgReader = new DwgReader(openFileDialog.FileName);
+                DxfModel model = dwgReader.Read();
+                DxfWriter.Write("Files/TempFiles/tempDXF.dxf", model);
+                string s;
+                string text = "";
+                using (var f = new StreamReader("Files/TempFiles/tempDXF.dxf", Encoding.GetEncoding(1251)))
+                {
+                    while ((s = f.ReadLine()) != null)
+                    {
+                        text += s.Replace("AVC", "AVRF") + "\n";
+                    }
+                }
+
+                string path = "";
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Title = "Save DWG";
+                saveFileDialog.Filter = "DWG files (*.dwg)|*.dwg";
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    path = saveFileDialog.FileName;
+                }
+
+                StreamWriter sw = new StreamWriter(path, true, Encoding.GetEncoding(1251));
+                sw.Write(text);
+                sw.Close();
+            }
+        }
+
+        //==========================================
+        //Загружаем PDF с чертежём с картинками 
+        //==========================================
+
+        public string dwgPDFpath { get; set; }
+
+        private void UploadPDF_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "PDF files (*.pdf)|*.pdf";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                dwgPDFpath = openFileDialog.FileName;
+                Logs.Text += "PDF-файл чертежа считан\n";
+            }
+        }
+
+        //==========================================
+        //Объединяем PDF титульник + Excel + чертёж 
+        //==========================================
+
+        private void CollectPDF_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Title = "Save PDF";
+            saveFileDialog.Filter = "PDF files (*.pdf)|*.pdf";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                using (var stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                {
+                    Merge(new[] { "Files/TempFiles/out.pdf", "Files/TempFiles/tempExcel.pdf", dwgPDFpath }, stream);
+                }
+                Logs.Text += $"PDF файл выгружен и доступен по пути {saveFileDialog.FileName}\n";
+            }
+
+        }
+
+        public static void Merge(IEnumerable<string> fileNames, Stream target)
+
+        {
+            using (var document = new Document())
+            using (var pdf = new PdfCopy(document, target))
+            {
+                document.Open();
+                foreach (string file in fileNames)
+                {
+                    using (var reader = new PdfReader(file))
+                    {
+                        pdf.AddDocument(reader);
+                    }
+                }
+            }
+        }
 
         //==========================================
         //Создание титульника и его запись в PDF
         //==========================================
 
-        private void CreateImage_Click(object sender, RoutedEventArgs e)
+        private void CreateTitle()
         {
             projectName(projectNameTxt.Text);
 
