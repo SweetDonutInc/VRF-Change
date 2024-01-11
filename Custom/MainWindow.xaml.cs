@@ -47,6 +47,9 @@ namespace Custom
         List<Tubes> Tubes_List = new List<Tubes>(); //Лист с трубами
         List<Colds> Colds_List = new List<Colds>(); //Лист с хладагентами
 
+        List<OutBlocksData> OutB_Data = new List<OutBlocksData>();
+        List<InBlocksData> InB_Data = new List<InBlocksData>();
+
         bool isHisense = false, isDantex = false, isClivet = false;
 
         public MainWindow()
@@ -68,7 +71,7 @@ namespace Custom
             Splitters_List.Clear();
             Tubes_List.Clear();
             Colds_List.Clear();
-            Logs.Text += "Логи:\n\nКраткая инструкция:\n1. Выбираем производителя\n2. Заполняем блоки\n" +
+            Logs.Text = "Логи:\n\nКраткая инструкция:\n1. Выбираем производителя\n2. Заполняем блоки\n" +
                 "3. Заполняем всю информацию для шапки Excel-файла\n4. Загружаем DWG-чертёж\n5. Выгружаем Excel-файл\n" +
                 "6. Загружаем PDF чертежа\n7. Выгружаем итоговый PDF-файл\n8. Вы великолепны\n";
 
@@ -143,33 +146,133 @@ namespace Custom
         }
 
         //==========================================
-        //Считывание с блокнотиков моделей при выбранном типе производителя
+        //Считывание с Excel-файлов моделей при выбранном типе производителя
         //==========================================
         private void OutletBlock_Selected(object sender, RoutedEventArgs e)
         {
+            OutB_Data.Clear();
             CB_ModelType.ItemsSource = null;
             List<string> tempList = new List<string>();
-            StreamReader f = new StreamReader("Files/Hisense/OutletBlocks.txt");
-            while (!f.EndOfStream)
+
+            IWorkbook workbook;
+            using (FileStream fileStream = new FileStream("Files/AllBlock.xlsx", FileMode.Open, FileAccess.Read))
             {
-                string s = f.ReadLine();
-                tempList.Add(s.Replace("\t", " "));
+                workbook = new XSSFWorkbook(fileStream); // Считываем шаблонный файл
             }
-            f.Close();
+
+            int sheetNum = 0;
+            int rowCnt = 0; //задавать номер последней строки в таблице
+            if (isHisense)
+            {
+                sheetNum = 0;
+                rowCnt = 32;
+            }
+            if (isDantex)
+            {
+                sheetNum = 1;
+                rowCnt = 71;
+            }
+            if (isClivet)
+            {
+                sheetNum = 2;
+                rowCnt = 125;
+            }
+
+            ISheet BlockOut = workbook.GetSheetAt(sheetNum);
+            for(int i = 3; i < rowCnt; i++)
+            {
+                IRow row = BlockOut.GetRow(i);
+                if (row.GetCell(0).StringCellValue != "")
+                {
+                    OutB_Data.Add(
+                        new OutBlocksData
+                        {
+                            realName = row.GetCell(0).StringCellValue,
+                            AWName = row.GetCell(1).StringCellValue,
+                            nominalCooling = row.GetCell(2).NumericCellValue.ToString(),
+                            CoolingPower = row.GetCell(3).NumericCellValue.ToString(),
+                            EER = row.GetCell(4).NumericCellValue.ToString(),
+                            NominalHeating = row.GetCell(5).NumericCellValue.ToString(),
+                            HeatingPower = row.GetCell(6).NumericCellValue.ToString(),
+                            COP = row.GetCell(7).NumericCellValue.ToString(),
+                            tubeDiameter = row.GetCell(10).StringCellValue,
+                            RefrigerantType = row.GetCell(11).StringCellValue,
+                            PowerSupply = row.GetCell(12).StringCellValue,
+                            SoundLevel = row.GetCell(13).NumericCellValue.ToString(),
+                            Size = row.GetCell(14).StringCellValue,
+                            Weight = row.GetCell(15).NumericCellValue.ToString(),
+                        });
+                }
+            }
+
+            for(int i = 0; i < OutB_Data.Count; i++)
+            {
+                tempList.Add(OutB_Data[i].realName + " / " + OutB_Data[i].AWName);
+            }
+
             CB_ModelType.ItemsSource = tempList;
         }
 
         private void InletBlock_Selected(object sender, RoutedEventArgs e)
         {
+            InB_Data.Clear();
             CB_ModelType.ItemsSource = null;
             List<string> tempList = new List<string>();
-            StreamReader f = new StreamReader("Files/Hisense/InletBlocks.txt");
-            while (!f.EndOfStream)
+
+            IWorkbook workbook;
+            using (FileStream fileStream = new FileStream("Files/AllBlock.xlsx", FileMode.Open, FileAccess.Read))
             {
-                string s = f.ReadLine();
-                tempList.Add(s.Replace("\t", " "));
+                workbook = new XSSFWorkbook(fileStream); // Считываем шаблонный файл
             }
-            f.Close();
+
+            int sheetNum = 3;
+            int rowCnt = 0; //задавать номер последней строки в таблице
+            if (isHisense)
+            {
+                sheetNum = 3;
+                rowCnt = 70;
+            }
+            if (isDantex)
+            {
+                sheetNum = 4;
+                rowCnt = 104;
+            }
+            if (isClivet)
+            {
+                sheetNum = 5;
+                rowCnt = 62;
+            }
+
+            ISheet BlockOut = workbook.GetSheetAt(sheetNum);
+            for (int i = 3; i < rowCnt; i++)
+            {
+                IRow row = BlockOut.GetRow(i);
+                if (row.GetCell(0).StringCellValue != "")
+                {
+                    InB_Data.Add(
+                        new InBlocksData
+                        {
+                            realName = row.GetCell(0).StringCellValue,
+                            AWName = row.GetCell(1).StringCellValue,
+                            nominalCooling = row.GetCell(2).NumericCellValue.ToString(),
+                            NominalHeating = row.GetCell(5).NumericCellValue.ToString(),
+                            PowerConsumption = row.GetCell(8).NumericCellValue.ToString(),
+                            CondensateTubeDiameter = row.GetCell(9).NumericCellValue.ToString(),
+                            tubeDiameter = row.GetCell(10).StringCellValue,
+                            PowerSupply = row.GetCell(12).StringCellValue,
+                            SoundLevel = row.GetCell(13).NumericCellValue.ToString(),
+                            Size = row.GetCell(14).StringCellValue,
+                            Weight = row.GetCell(15).NumericCellValue.ToString(),
+                            AirExchange = ""
+                        });
+                }
+            }
+
+            for (int i = 0; i < InB_Data.Count; i++)
+            {
+                tempList.Add(InB_Data[i].realName + " / " + InB_Data[i].AWName);
+            }
+
             CB_ModelType.ItemsSource = tempList;
         }
 
@@ -347,7 +450,7 @@ namespace Custom
             IWorkbook workbook;
             using (FileStream fileStream = new FileStream("Files/BlocksTemplate.xls", FileMode.Open, FileAccess.Read))
             {
-                workbook = new HSSFWorkbook(fileStream); // Считываем шаблонный файл
+                workbook = new HSSFWorkbook(fileStream); //Считываем шаблонный файл
             }
 
             //==========================================
@@ -507,7 +610,7 @@ namespace Custom
                         for (int i = 0; i < 2; i++)
                         {
                             CopyRow(workbook, workbook, sheet12, sheet10, i + 3, i + 1 + 2 * j + newPos2List);
-                            if(i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Tubes.png");
+                            //if(i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Tubes.png");
                             switch (i + 1)
                             {
                                 case 2:
@@ -570,6 +673,19 @@ namespace Custom
             //Внешние блоки
             if (outletBlocks_List.Count > 0)
             {
+
+                //Заполним новый лист путём сравнения
+                List<OutBlocksData> tempOut = new List<OutBlocksData>();
+                for(int n = 0; n < outletBlocks_List.Count; n++)
+                {
+                    for(int m = 0; m < OutB_Data.Count; m++)
+                    {
+                        string[] s = outletBlocks_List[n].name.Replace(" ", "").Split('/');
+                        if (s[0].Equals(OutB_Data[m].realName)) tempOut.Add(OutB_Data[m]);
+                    }
+                }
+
+                //Лист заполнен, дальше заполняем ячейки Excel-файла
                 for (int j = 0; j < outletBlocks_List.Count; j++)
                 {
                     for (int i = 0; i < 16; i++)
@@ -578,9 +694,32 @@ namespace Custom
                         switch (i)
                         {
                             case 2:
-                                string[] temp = outletBlocks_List[j].name.Split('/');
-                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(temp[1].Replace(" ", ""));
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(tempOut[j].AWName);
                                 sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
+                                break;
+                            case 4:
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(tempOut[j].nominalCooling);
+                                sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(tempOut[j].NominalHeating);
+                                break;
+                            case 6:
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(tempOut[j].CoolingPower);
+                                sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(tempOut[j].HeatingPower);
+                                break;
+                            case 8:
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(tempOut[j].tubeDiameter);
+                                sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(tempOut[j].RefrigerantType);
+                                break;
+                            case 10:
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(tempOut[j].PowerSupply);
+                                sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(tempOut[j].SoundLevel);
+                                break;
+                            case 12:
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(tempOut[j].EER);
+                                sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(tempOut[j].COP);
+                                break;
+                            case 14:
+                                sheet2.GetRow(i + 16 * j).GetCell(1).SetCellValue(tempOut[j].Size);
+                                sheet2.GetRow(i + 16 * j).GetCell(16).SetCellValue(tempOut[j].Weight);
                                 break;
                         }
                     }
@@ -588,6 +727,19 @@ namespace Custom
             }
 
             //Внутренние блоки
+
+            //Заполним новый лист путём сравнения
+            List<InBlocksData> tempIn = new List<InBlocksData>();
+            for (int n = 0; n < inletBlocks_List.Count; n++)
+            {
+                for (int m = 0; m < InB_Data.Count; m++)
+                {
+                    string[] s = inletBlocks_List[n].name.Replace(" ", "").Split('/');
+                    if (s[0].Equals(InB_Data[m].realName)) tempIn.Add(InB_Data[m]);
+                }
+            }
+
+            //Лист заполнен, дальше заполняем ячейки Excel-файла
 
             if (inletBlocks_List.Count > 0)
             {
@@ -600,22 +752,41 @@ namespace Custom
                         switch (i)
                         {
                             case 2:
-                                string[] temp = inletBlocks_List[j].name.Split('/');
-                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(temp[1].Replace(" ", ""));
+                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].AWName);
                                 sheet2.GetRow(newPos).GetCell(16).SetCellValue(inletBlocks_List[j].count);
+                                break;
+                            case 4:
+                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].nominalCooling);
+                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].NominalHeating);
+                                break;
+                            case 6:
+                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].PowerConsumption);
+                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].SoundLevel);
+                                break;
+                            case 8:
+                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].PowerSupply);
+                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].AirExchange);
+                                break;
+                            case 10:
+                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].tubeDiameter);
+                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].CondensateTubeDiameter);
+                                break;
+                            case 12:
+                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].Size);
+                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].Weight);
                                 break;
                         }
                     }
                 }
             }
 
-            for (int i = 0; i < 17; i++)
+            for (int i = 0; i < 18; i++)
             {
                 CopyRow(workbook, workbook, sheet12, sheet13, i, newPos2List + i);
                 if (i == 1) insertImage(workbook, sheet12, 0, newPos2List + i, "Files/Images/AW.png");
             }
 
-            newPos2List += 17;
+            newPos2List += 18;
 
             for (int i = 0; i < outletBlocks_List.Count * 16 + inletBlocks_List.Count * 14; i++)
             {
@@ -649,7 +820,6 @@ namespace Custom
 
             CreateTitle();
             Logs.Text += "Excel-файл выгружен\n";
-            
         }
 
         public string excelPath { get; set; }
@@ -766,7 +936,12 @@ namespace Custom
                 {
                     while ((s = f.ReadLine()) != null)
                     {
-                        text += s.Replace("AVC", "AVRF") + "\n";
+                        if (s.Contains("1021"))
+                            text += s.Replace("1021", "1032") +"\n";
+                        else
+                        {
+                            text += checkContains(s) + "\n";
+                        }
                     }
                 }
 
@@ -784,6 +959,39 @@ namespace Custom
                 sw.Write(text);
                 sw.Close();
             }
+        }
+
+        public string checkContains(string str)
+        {
+            string newStr = "";
+            if(outletBlocks_List.Count > 0)
+            {
+                for(int i = 0; i < outletBlocks_List.Count; i++)
+                {
+                    string[] s = outletBlocks_List[i].name.Replace(" ", "").Split('/');
+                    if (str.Contains(s[0]))
+                    {
+                        newStr = str.Replace(s[0], s[1]);
+                        return newStr;
+                    }
+
+                    else newStr = str;
+                }
+            }
+            if (inletBlocks_List.Count > 0)
+            {
+                for (int i = 0; i < inletBlocks_List.Count; i++)
+                {
+                    string[] s = inletBlocks_List[i].name.Replace(" ", "").Split('/');
+                    if (str.Contains(s[0]))
+                    {
+                        newStr = str.Replace(s[0], s[1]);
+                        return newStr;
+                    }
+                    else newStr = str;
+                }
+            }
+            return newStr;
         }
 
         //==========================================
@@ -924,5 +1132,39 @@ namespace Custom
     {
         public string name { get; set; }
         public double count { get; set; }
+    }
+
+    public class OutBlocksData
+    {
+        public string realName { get; set; }
+        public string AWName { get; set; }
+        public string nominalCooling { get; set; }
+        public string CoolingPower { get; set; }
+        public string EER { get; set; }
+        public string NominalHeating { get; set; }
+        public string HeatingPower { get; set; }
+        public string COP { get; set; }
+        public string tubeDiameter { get; set; }
+        public string RefrigerantType { get; set; }
+        public string PowerSupply { get; set; }
+        public string SoundLevel { get; set; }
+        public string Size { get; set; }
+        public string Weight { get; set; }
+    }
+
+    public class InBlocksData
+    {
+        public string realName { get; set; }
+        public string AWName { get; set; }
+        public string nominalCooling { get; set; }
+        public string NominalHeating { get; set; }
+        public string PowerConsumption { get; set; }
+        public string CondensateTubeDiameter { get; set; }
+        public string tubeDiameter { get; set; }
+        public string PowerSupply { get; set; }
+        public string AirExchange { get; set; }
+        public string SoundLevel { get; set; }
+        public string Size { get; set; }
+        public string Weight { get; set; }
     }
 }
