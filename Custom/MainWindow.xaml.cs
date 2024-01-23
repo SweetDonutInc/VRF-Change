@@ -89,7 +89,7 @@ namespace Custom
                 case 0:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        outletBlocks_List.Add(new OutletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
+                        outletBlocks_List.Add(new OutletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToInt32(TB_CountText.Text) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nВнешний блок\n" +
                             outletBlocks_List[outletBlocks_List.Count - 1].name + " || " +
                             outletBlocks_List[outletBlocks_List.Count - 1].count.ToString() + " шт.\n";
@@ -100,7 +100,7 @@ namespace Custom
                 case 1:
                     if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
                     {
-                        inletBlocks_List.Add(new InletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
+                        inletBlocks_List.Add(new InletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToInt32(TB_CountText.Text) });
                         Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nВнутренний блок\n" +
                             inletBlocks_List[inletBlocks_List.Count - 1].name + " || " +
                             inletBlocks_List[inletBlocks_List.Count - 1].count.ToString() + " шт.\n";
@@ -447,6 +447,11 @@ namespace Custom
         //==========================================
         private void CreateExcel_Click(object sender, RoutedEventArgs e)
         {
+            double nominalCooling = 0.0;
+            double nominalHeating = 0.0;
+            int outletCnt = 0;
+            int inletCnt = 0;
+
             IWorkbook workbook;
             using (FileStream fileStream = new FileStream("Files/BlocksTemplate.xls", FileMode.Open, FileAccess.Read))
             {
@@ -569,6 +574,7 @@ namespace Custom
                         for (int i = 0; i < 2; i++)
                         {
                             CopyRow(workbook, workbook, sheet12, sheet8, i + 3, i + 1 + 2 * j + newPos2List);
+                            if(i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Splitter.png");
                             switch (i + 1)
                             {
                                 case 2:
@@ -584,6 +590,7 @@ namespace Custom
                         for (int i = 0; i < 3; i++)
                         {
                             CopyRow(workbook, workbook, sheet12, sheet8, i, i + 1 + 2 * j + newPos2List);
+                            if (i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Splitter.png");
                             switch (i + 1)
                             {
                                 case 2:
@@ -610,7 +617,7 @@ namespace Custom
                         for (int i = 0; i < 2; i++)
                         {
                             CopyRow(workbook, workbook, sheet12, sheet10, i + 3, i + 1 + 2 * j + newPos2List);
-                            //if(i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Tubes.png");
+                            if(i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Tube.png");
                             switch (i + 1)
                             {
                                 case 2:
@@ -625,6 +632,7 @@ namespace Custom
                         for (int i = 0; i < 3; i++)
                         {
                             CopyRow(workbook, workbook, sheet12, sheet10, i, i + 1 + 2 * j + newPos2List);
+                            if (i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Tube.png");
                             switch (i + 1)
                             {
                                 case 2:
@@ -647,6 +655,7 @@ namespace Custom
                     for (int i = 0; i < 3; i++)
                     {
                         CopyRow(workbook, workbook, sheet12, sheet11, i, i + 3 * j + newPos2List);
+                        if (i == 1) insertImage(workbook, sheet12, 1, i + 2 * j + newPos2List, "Files/Images/Cold.png");
                         switch (i)
                         {
                             case 2:
@@ -673,7 +682,6 @@ namespace Custom
             //Внешние блоки
             if (outletBlocks_List.Count > 0)
             {
-
                 //Заполним новый лист путём сравнения
                 List<OutBlocksData> tempOut = new List<OutBlocksData>();
                 for(int n = 0; n < outletBlocks_List.Count; n++)
@@ -686,8 +694,12 @@ namespace Custom
                 }
 
                 //Лист заполнен, дальше заполняем ячейки Excel-файла
+
                 for (int j = 0; j < outletBlocks_List.Count; j++)
                 {
+                    outletCnt += outletBlocks_List[j].count;
+                    nominalCooling += Convert.ToDouble(tempOut[j].nominalCooling);
+                    nominalHeating += Convert.ToDouble(tempOut[j].NominalHeating);
                     for (int i = 0; i < 16; i++)
                     {
                         CopyRow(workbook, workbook, sheet2, sheet, i, i + 16 * j);
@@ -728,57 +740,66 @@ namespace Custom
 
             //Внутренние блоки
 
-            //Заполним новый лист путём сравнения
-            List<InBlocksData> tempIn = new List<InBlocksData>();
-            for (int n = 0; n < inletBlocks_List.Count; n++)
-            {
-                for (int m = 0; m < InB_Data.Count; m++)
-                {
-                    string[] s = inletBlocks_List[n].name.Replace(" ", "").Split('/');
-                    if (s[0].Equals(InB_Data[m].realName)) tempIn.Add(InB_Data[m]);
-                }
-            }
-
-            //Лист заполнен, дальше заполняем ячейки Excel-файла
-
             if (inletBlocks_List.Count > 0)
             {
-                for (int j = 0; j < inletBlocks_List.Count; j++)
+                //Заполним новый лист путём сравнения
+                List<InBlocksData> tempIn = new List<InBlocksData>();
+                for (int n = 0; n < inletBlocks_List.Count; n++)
                 {
-                    for (int i = 0; i < 14; i++)
+                    for (int m = 0; m < InB_Data.Count; m++)
                     {
-                        int newPos = i + 14 * j + 16 * outletBlocks_List.Count;
-                        CopyRow(workbook, workbook, sheet2, sheet1, i, newPos);
-                        switch (i)
+                        string[] s = inletBlocks_List[n].name.Replace(" ", "").Split('/');
+                        if (s[0].Equals(InB_Data[m].realName)) tempIn.Add(InB_Data[m]);
+                    }
+                }
+
+                //Лист заполнен, дальше заполняем ячейки Excel-файла
+
+                if (inletBlocks_List.Count > 0)
+                {
+                    for (int j = 0; j < inletBlocks_List.Count; j++)
+                    {
+                        inletCnt += inletBlocks_List[j].count;
+                        for (int i = 0; i < 14; i++)
                         {
-                            case 2:
-                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].AWName);
-                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(inletBlocks_List[j].count);
-                                break;
-                            case 4:
-                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].nominalCooling);
-                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].NominalHeating);
-                                break;
-                            case 6:
-                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].PowerConsumption);
-                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].SoundLevel);
-                                break;
-                            case 8:
-                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].PowerSupply);
-                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].AirExchange);
-                                break;
-                            case 10:
-                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].tubeDiameter);
-                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].CondensateTubeDiameter);
-                                break;
-                            case 12:
-                                sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].Size);
-                                sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].Weight);
-                                break;
+                            int newPos = i + 14 * j + 16 * outletBlocks_List.Count;
+                            CopyRow(workbook, workbook, sheet2, sheet1, i, newPos);
+                            switch (i)
+                            {
+                                case 2:
+                                    sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].AWName);
+                                    sheet2.GetRow(newPos).GetCell(16).SetCellValue(inletBlocks_List[j].count);
+                                    break;
+                                case 4:
+                                    sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].nominalCooling);
+                                    sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].NominalHeating);
+                                    break;
+                                case 6:
+                                    sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].PowerConsumption);
+                                    sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].SoundLevel);
+                                    break;
+                                case 8:
+                                    sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].PowerSupply);
+                                    sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].AirExchange);
+                                    break;
+                                case 10:
+                                    sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].tubeDiameter);
+                                    sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].CondensateTubeDiameter);
+                                    break;
+                                case 12:
+                                    sheet2.GetRow(newPos).GetCell(1).SetCellValue(tempIn[j].Size);
+                                    sheet2.GetRow(newPos).GetCell(16).SetCellValue(tempIn[j].Weight);
+                                    break;
+                            }
                         }
                     }
                 }
+
             }
+
+            //Заполняем шапку
+
+            fillHeader(sheet13, nominalCooling, nominalHeating, outletCnt, inletCnt); 
 
             for (int i = 0; i < 18; i++)
             {
@@ -820,6 +841,20 @@ namespace Custom
 
             CreateTitle();
             Logs.Text += "Excel-файл выгружен\n";
+        }
+
+        private void fillHeader(ISheet sheet, double cool, double heat, int outletCnt, int inletCnt)
+        {
+            sheet.GetRow(0).GetCell(12).SetCellValue(OrderNum.Text); // Номер предложения
+            sheet.GetRow(0).GetCell(17).SetCellValue(Date.Text); // Дата
+            sheet.GetRow(1).GetCell(12).SetCellValue(PjNum.Text); // Номер проекта
+            sheet.GetRow(1).GetCell(18).SetCellValue(Worker.Text); // Руководитель проекта
+            sheet.GetRow(2).GetCell(16).SetCellValue(SystemName.Text); // Система
+            sheet.GetRow(3).GetCell(16).SetCellValue(outletCnt); // Кол-во наружних блоков
+            sheet.GetRow(4).GetCell(16).SetCellValue(inletCnt); // Кол-во внутренних блоков
+            sheet.GetRow(5).GetCell(12).SetCellValue(Name); // Объект
+            sheet.GetRow(7).GetCell(11).SetCellValue(cool); // Номинальная холодопроизводительность
+            sheet.GetRow(7).GetCell(27).SetCellValue(heat); // Номинальная теплопроизводительность
         }
 
         public string excelPath { get; set; }
@@ -1107,13 +1142,13 @@ namespace Custom
     public class OutletBlocks
     {
         public string name { get; set; }
-        public double count { get; set; }
+        public int count { get; set; }
     }
 
     public class InletBlocks
     {
         public string name { get; set; }
-        public double count { get; set; }
+        public int count { get; set; }
     }
 
     public class Splitters
