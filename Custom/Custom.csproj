@@ -182,16 +182,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Files\Hisense\OutletBlocks.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Files\Hisense\InletBlocks.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Files\Hisense\Splitters.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

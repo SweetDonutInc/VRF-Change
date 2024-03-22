@@ -58,6 +58,7 @@ namespace Custom
             Logs.Text += "Логи:\n\nКраткая инструкция:\n1. Выбираем производителя\n2. Заполняем блоки\n" +
                 "3. Заполняем всю информацию для шапки Excel-файла\n4. Загружаем DWG-чертёж (Может занять несколько секунд)\n5. Выгружаем Excel-файл\n" +
                 "6. Загружаем PDF чертежа\n7. Выгружаем итоговый PDF-файл\n8. Вы великолепны\n";
+            version.Text = "v1.1";
         }
 
         //==========================================
@@ -82,65 +83,93 @@ namespace Custom
         //==========================================
         //==========================================
 
-        private void Add_Click(object sender, RoutedEventArgs e)
+        private string AddBlockLogText(int num)
         {
-            switch (CB_BlockTypes.SelectedIndex)
+            string s = $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\n";
+            switch (num)
             {
                 case 0:
-                    if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
-                    {
-                        outletBlocks_List.Add(new OutletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToInt32(TB_CountText.Text) });
-                        Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nВнешний блок\n" +
-                            outletBlocks_List[outletBlocks_List.Count - 1].name + " || " +
-                            outletBlocks_List[outletBlocks_List.Count - 1].count.ToString() + " шт.\n";
-                        CB_ModelType.SelectedItem = null;
-                        TB_CountText.Text = "";
-                    }
-                    break;
+                    return $"{s} Внешний блок\n" +
+                                outletBlocks_List[outletBlocks_List.Count - 1].name + " • " +
+                                outletBlocks_List[outletBlocks_List.Count - 1].count.ToString() + " шт.\n";
                 case 1:
-                    if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
-                    {
-                        inletBlocks_List.Add(new InletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToInt32(TB_CountText.Text) });
-                        Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nВнутренний блок\n" +
-                            inletBlocks_List[inletBlocks_List.Count - 1].name + " || " +
-                            inletBlocks_List[inletBlocks_List.Count - 1].count.ToString() + " шт.\n";
-                        CB_ModelType.SelectedItem = null;
-                        TB_CountText.Text = "";
-                    }
-                    break;
+                    return $"{s} Внутренний блок\n" +
+                             inletBlocks_List[inletBlocks_List.Count - 1].name + " • " +
+                             inletBlocks_List[inletBlocks_List.Count - 1].count.ToString() + " шт.\n";
                 case 2:
-                    if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
-                    {
-                        Splitters_List.Add(new Splitters { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
-                        Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nРазветвитель\n" +
-                            Splitters_List[Splitters_List.Count - 1].name + " || " +
-                            Splitters_List[Splitters_List.Count - 1].count.ToString() + " шт.\n";
-                        CB_ModelType.SelectedItem = null;
-                        TB_CountText.Text = "";
-                    }
-                    break;
+                    return $"{s} Разветвитель\n" +
+                                Splitters_List[Splitters_List.Count - 1].name + " • " +
+                                Splitters_List[Splitters_List.Count - 1].count.ToString() + " шт.\n";
                 case 3:
-                    if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
-                    {
-                        Tubes_List.Add(new Tubes { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text.Replace('.', ',')) });
-                        Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nМедная труба\n" +
-                            Tubes_List[Tubes_List.Count - 1].name + " || " +
-                            Tubes_List[Tubes_List.Count - 1].count.ToString() + " м\n";
-                        CB_ModelType.SelectedItem = null;
-                        TB_CountText.Text = "";
-                    }
-                    break;
+                    return $"{s} Медная труба\n" +
+                                Tubes_List[Tubes_List.Count - 1].name + " • " +
+                                Tubes_List[Tubes_List.Count - 1].count.ToString() + " м\n";
                 case 4:
-                    if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
-                    {
-                        Colds_List.Add(new Colds { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text.Replace('.', ',')) });
-                        Logs.Text += $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second}] Добавлен новый элемент:\nХладагент\n" +
-                            Colds_List[Colds_List.Count - 1].name + " || " +
-                            Colds_List[Colds_List.Count - 1].count.ToString() + " кг.\n";
-                        CB_ModelType.SelectedItem = null;
-                        TB_CountText.Text = "";
-                    }
-                    break;
+                    return $"{s} Хладагент\n" +
+                                Colds_List[Colds_List.Count - 1].name + " • " +
+                                Colds_List[Colds_List.Count - 1].count.ToString() + " кг.\n";
+                default: 
+                    return "";
+
+            } 
+        }
+
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                switch (CB_BlockTypes.SelectedIndex)
+                {
+                    case 0:
+                        if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
+                        {
+                            outletBlocks_List.Add(new OutletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToInt32(TB_CountText.Text) });
+                            Logs.Text += AddBlockLogText(0);
+                            CB_ModelType.SelectedItem = null;
+                            TB_CountText.Text = "";
+                        }
+                        break;
+                    case 1:
+                        if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
+                        {
+                            inletBlocks_List.Add(new InletBlocks { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToInt32(TB_CountText.Text) });
+                            Logs.Text += AddBlockLogText(1);
+                            CB_ModelType.SelectedItem = null;
+                            TB_CountText.Text = "";
+                        }
+                        break;
+                    case 2:
+                        if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
+                        {
+                            Splitters_List.Add(new Splitters { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text) });
+                            Logs.Text += AddBlockLogText(2);
+                            CB_ModelType.SelectedItem = null;
+                            TB_CountText.Text = "";
+                        }
+                        break;
+                    case 3:
+                        if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
+                        {
+                            Tubes_List.Add(new Tubes { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text.Replace('.', ',')) });
+                            Logs.Text += AddBlockLogText(3);
+                            CB_ModelType.SelectedItem = null;
+                            TB_CountText.Text = "";
+                        }
+                        break;
+                    case 4:
+                        if (CB_ModelType.SelectedItem != null && TB_CountText.Text != "")
+                        {
+                            Colds_List.Add(new Colds { name = CB_ModelType.SelectedItem.ToString(), count = Convert.ToDouble(TB_CountText.Text.Replace('.', ',')) });
+                            Logs.Text += AddBlockLogText(4);
+                            CB_ModelType.SelectedItem = null;
+                            TB_CountText.Text = "";
+                        }
+                        break;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Не удалось добавить блок. Проверьте правильность введённых данных!", "Ошибка!");
             }
 
         }
@@ -159,30 +188,12 @@ namespace Custom
             {
                 workbook = new XSSFWorkbook(fileStream); // Считываем шаблонный файл
             }
-
-            int sheetNum = 0;
-            int rowCnt = 0; //задавать номер последней строки в таблице
-            if (isHisense)
-            {
-                sheetNum = 0;
-                rowCnt = 32;
-            }
-            if (isDantex)
-            {
-                sheetNum = 1;
-                rowCnt = 71;
-            }
-            if (isClivet)
-            {
-                sheetNum = 2;
-                rowCnt = 125;
-            }
-
-            ISheet BlockOut = workbook.GetSheetAt(sheetNum);
-            for(int i = 3; i < rowCnt; i++)
+            
+            ISheet BlockOut = workbook.GetSheetAt(isHisense ? 0 : isDantex ? 1 : 2);
+            for(int i = 3; i < BlockOut.LastRowNum; i++)
             {
                 IRow row = BlockOut.GetRow(i);
-                if (row.GetCell(0).StringCellValue != "")
+                try
                 {
                     OutB_Data.Add(
                         new OutBlocksData
@@ -203,11 +214,15 @@ namespace Custom
                             Weight = row.GetCell(15).NumericCellValue.ToString(),
                         });
                 }
+                catch
+                {
+                    break;
+                }
             }
 
             for(int i = 0; i < OutB_Data.Count; i++)
             {
-                tempList.Add(OutB_Data[i].realName + " / " + OutB_Data[i].AWName);
+                tempList.Add(OutB_Data[i].realName + " • " + OutB_Data[i].AWName);
             }
 
             CB_ModelType.ItemsSource = tempList;
@@ -225,52 +240,42 @@ namespace Custom
                 workbook = new XSSFWorkbook(fileStream); // Считываем шаблонный файл
             }
 
-            int sheetNum = 3;
-            int rowCnt = 0; //задавать номер последней строки в таблице
-            if (isHisense)
-            {
-                sheetNum = 3;
-                rowCnt = 70;
-            }
-            if (isDantex)
-            {
-                sheetNum = 4;
-                rowCnt = 104;
-            }
-            if (isClivet)
-            {
-                sheetNum = 5;
-                rowCnt = 62;
-            }
+            ISheet BlockIn = workbook.GetSheetAt(isHisense ? 3 : isDantex ? 4 : 5);
 
-            ISheet BlockOut = workbook.GetSheetAt(sheetNum);
-            for (int i = 3; i < rowCnt; i++)
+            for (int i = 3; i < BlockIn.LastRowNum; i++)
             {
-                IRow row = BlockOut.GetRow(i);
-                if (row.GetCell(0).StringCellValue != "")
+                try
                 {
-                    InB_Data.Add(
-                        new InBlocksData
-                        {
-                            realName = row.GetCell(0).StringCellValue,
-                            AWName = row.GetCell(1).StringCellValue,
-                            nominalCooling = row.GetCell(2).NumericCellValue.ToString(),
-                            NominalHeating = row.GetCell(5).NumericCellValue.ToString(),
-                            PowerConsumption = row.GetCell(8).NumericCellValue.ToString(),
-                            CondensateTubeDiameter = row.GetCell(9).NumericCellValue.ToString(),
-                            tubeDiameter = row.GetCell(10).StringCellValue,
-                            PowerSupply = row.GetCell(12).StringCellValue,
-                            SoundLevel = row.GetCell(13).NumericCellValue.ToString(),
-                            Size = row.GetCell(14).StringCellValue,
-                            Weight = row.GetCell(15).NumericCellValue.ToString(),
-                            AirExchange = ""
-                        });
+                    IRow row = BlockIn.GetRow(i);
+                    if (row.GetCell(0).StringCellValue != "")
+                    {
+                        InB_Data.Add(
+                            new InBlocksData
+                            {
+                                realName = row.GetCell(0).StringCellValue,
+                                AWName = row.GetCell(1).StringCellValue,
+                                nominalCooling = row.GetCell(2).NumericCellValue.ToString(),
+                                NominalHeating = row.GetCell(5).NumericCellValue.ToString(),
+                                PowerConsumption = row.GetCell(8).NumericCellValue.ToString(),
+                                CondensateTubeDiameter = row.GetCell(9).NumericCellValue.ToString(),
+                                tubeDiameter = row.GetCell(10).StringCellValue,
+                                PowerSupply = row.GetCell(12).StringCellValue,
+                                SoundLevel = row.GetCell(13).NumericCellValue.ToString(),
+                                Size = row.GetCell(14).StringCellValue,
+                                Weight = row.GetCell(15).NumericCellValue.ToString(),
+                                AirExchange = ""
+                            });
+                    }
+                }
+                catch
+                {
+                    break;
                 }
             }
 
             for (int i = 0; i < InB_Data.Count; i++)
             {
-                tempList.Add(InB_Data[i].realName + " / " + InB_Data[i].AWName);
+                tempList.Add(InB_Data[i].realName + " • " + InB_Data[i].AWName);
             }
 
             CB_ModelType.ItemsSource = tempList;
@@ -280,7 +285,7 @@ namespace Custom
         {
             CB_ModelType.ItemsSource = null;
             List<string> tempList = new List<string>();
-            StreamReader f = new StreamReader("Files/Hisense/Splitters.txt");
+            StreamReader f = new StreamReader("Files/Hisense/Splitters.txt", Encoding.Default);
             while (!f.EndOfStream)
             {
                 string s = f.ReadLine();
@@ -495,7 +500,7 @@ namespace Custom
                             switch (i + 1)
                             {
                                 case 2:
-                                    string[] temp = outletBlocks_List[j].name.Split('/');
+                                    string[] temp = outletBlocks_List[j].name.Split('•');
                                     sheet12.GetRow(i + 1 + 2 * j).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
                                     sheet12.GetRow(i + 1 + 2 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
                                     break;
@@ -510,7 +515,7 @@ namespace Custom
                             switch (i + 1)
                             {
                                 case 2:
-                                    string[] temp = outletBlocks_List[j].name.Split('/');
+                                    string[] temp = outletBlocks_List[j].name.Split('•');
                                     sheet12.GetRow(i + 1 + 2 * j).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
                                     sheet12.GetRow(i + 1 + 2 * j).GetCell(16).SetCellValue(outletBlocks_List[j].count);
                                     break;
@@ -536,7 +541,7 @@ namespace Custom
                             switch (i + 1)
                             {
                                 case 2:
-                                    string[] temp = inletBlocks_List[j].name.Split('/');
+                                    string[] temp = inletBlocks_List[j].name.Split('•');
                                     sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
                                     sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(21).SetCellValue(inletBlocks_List[j].count);
                                     break;
@@ -551,7 +556,7 @@ namespace Custom
                             switch (i + 1)
                             {
                                 case 2:
-                                    string[] temp = inletBlocks_List[j].name.Split('/');
+                                    string[] temp = inletBlocks_List[j].name.Split('•');
                                     sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
                                     sheet12.GetRow(i + 1 + 3 * j + newPos2List).GetCell(21).SetCellValue(inletBlocks_List[j].count);
                                     break;
@@ -578,7 +583,7 @@ namespace Custom
                             switch (i + 1)
                             {
                                 case 2:
-                                    string[] temp = Splitters_List[j].name.Split('/');
+                                    string[] temp = Splitters_List[j].name.Split('•');
                                     sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
                                     sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(16).SetCellValue(Splitters_List[j].count);
                                     break;
@@ -594,7 +599,7 @@ namespace Custom
                             switch (i + 1)
                             {
                                 case 2:
-                                    string[] temp = Splitters_List[j].name.Split('/');
+                                    string[] temp = Splitters_List[j].name.Split('•');
                                     sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(3).SetCellValue(temp[1].Replace(" ", ""));
                                     sheet12.GetRow(i + 1 + 2 * j + newPos2List).GetCell(16).SetCellValue(Splitters_List[j].count);
                                     break;
@@ -688,13 +693,12 @@ namespace Custom
                 {
                     for(int m = 0; m < OutB_Data.Count; m++)
                     {
-                        string[] s = outletBlocks_List[n].name.Replace(" ", "").Split('/');
+                        string[] s = outletBlocks_List[n].name.Replace(" ", "").Split('•');
                         if (s[0].Equals(OutB_Data[m].realName)) tempOut.Add(OutB_Data[m]);
                     }
                 }
 
                 //Лист заполнен, дальше заполняем ячейки Excel-файла
-
                 for (int j = 0; j < outletBlocks_List.Count; j++)
                 {
                     outletCnt += outletBlocks_List[j].count;
@@ -748,7 +752,7 @@ namespace Custom
                 {
                     for (int m = 0; m < InB_Data.Count; m++)
                     {
-                        string[] s = inletBlocks_List[n].name.Replace(" ", "").Split('/');
+                        string[] s = inletBlocks_List[n].name.Replace(" ", "").Split('•');
                         if (s[0].Equals(InB_Data[m].realName)) tempIn.Add(InB_Data[m]);
                     }
                 }
